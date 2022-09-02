@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="./x.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify.min.js"></script>
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script>
+        // so the below module compiles
+        window.module = {};
+    </script>
+    <script src="https://unpkg.com/js-tokens@8.0.0/index.js"></script>
+    <script>
+        XParser.jsTokens = jsTokens;
+        XParser.beautify = js_beautify;
+        XParser.JSZip = JSZip;
+        XParser.DOMParser = DOMParser;
+    </script>
+    <title>X: An xkcd programming language</title>
+    <link rel="STYLESHEET" href="./x.css">
+</head>
+<body>
+    <header>
+        <h1>X</h1>
+        <h2>An <a target="_blank" href="https://xkcd.com/">xkcd</a> programming language</h2>
+        <a target="_blank" href="https://xkcd.com/2309/">
+            <img width="500" src="https://imgs.xkcd.com/comics/x.png">
+        </a>
+    </header>
+    <div id="content">
+        <div id="upload">
+        <div id="dropbox">
+            <div>
+                <label for="input">Upload a Word (.docx) file! </label><input id="input" type="file">
+            </div>
+        </div>
+        <div>
+            <button id="compile">Compile!</button>
+        </div>
+        <textarea id="output" readonly=""></textarea>
+        <div>
+            <button id="evaluate" disabled>Evaluate!</button>
+        </div>
+        </div>
+        <div id="virtual-console">
+            Console output:
+            <textarea id="console-output"></textarea>
+        </div>
+    </div>
+</body>
+</html>

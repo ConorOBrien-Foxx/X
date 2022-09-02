@@ -1,0 +1,22 @@
+{
+  "name": "x",
+  "version": "1.0.0",
+  "description": "xkcd.com/2309",
+  "main": "x.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "x",
+    "language",
+    "doc"
+  ],
+  "author": "Conor O'Brien",
+  "license": "ISC",
+  "dependencies": {
+    "js-beautify": "^1.14.6",
+    "js-tokens": "^8.0.0",
+    "jszip": "^3.10.1",
+    "xmldom": "^0.6.0"
+  }
+}
