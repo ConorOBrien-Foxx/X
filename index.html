@@ -22,9 +22,7 @@
     <header>
         <h1>X</h1>
         <h2>An <a target="_blank" href="https://xkcd.com/">xkcd</a> programming language</h2>
-        <a target="_blank" href="https://xkcd.com/2309/">
-            <img width="500" src="https://imgs.xkcd.com/comics/x.png">
-        </a>
+        <h3>Implemented by <a href="https://github.com/ConorOBrien-Foxx">Conor O'Brien</a></h3>
     </header>
     <div id="content">
         <div id="upload">
@@ -45,6 +43,52 @@
             Console output:
             <textarea id="console-output"></textarea>
         </div>
+    </div>
+    <div id="extra">
+        <h1>FAQ</h1>
+        <a target="_blank" href="https://xkcd.com/2309/">
+            <img width="600" src="https://imgs.xkcd.com/comics/x.png">
+        </a>
+        <p id="commands">
+            <b>Q:</b> What are the commands I can use?
+            <br/>
+            <b>A:</b> In addition to the JavaScript keywords, there are the following (which you can copy paste into your X IDE!):
+        </p>
+        <ul id="commandList">
+            <li><span style="font-family: Impact">X</span> (Impact) - Print</li>
+            <li><span style="font-family: Arial">X</span> (Arial) - the Set class</li>
+            <li><span style="font-family: Calibri">X</span> (Calibri) - Pushes the second argument to the first</li>
+            <li><span style="font-family: 'Times New Roman'">X</span> (Times New Roman) - Joins the first argument by the optional second argument</li>
+        </ul>
+        <p>
+            <b>Q:</b> What is this?
+            <br/>
+            <b>A:</b> X is a programming language realized from the above xkcd comic. It is an abomination of a language whose variables are all named <code>x</code>, differentiated only by their font.
+        </p>
+        <p>
+            <b>Q:</b> How&hellip; how do I use this?
+            <br/>
+            <b>A:</b> Simply upload a word document! I haven't tested it extensively, but any word document should work. So long as the only non-keyword identifiers are named <code>x</code>, the fonts should be enough to go off of.
+            <div>
+            <figure>
+                <img src="./FizzBuzz.png" width="600">
+                <figcaption>FizzBuzz in X.</figcaption>
+            </figure>
+        </p>
+        <p>
+            <b>Q:</b> How did you do this?
+            <br/>
+            <b>A:</b> Surprisingly, Word Files are just glorified .zip files. Each document has a document.xml file, which is not terribly difficult to parse. Feel free to give <a href="https://github.com/ConorOBrien-Foxx/X">the source code on GitHub</a> a read, it's pretty quick, all things considered.
+        </p>
+        <p>
+            <b>Q:</b> <em>Why</em> did you do this?
+            <br/>
+            <b>A:</b> What else was I supposed to do with a lazy Thursday night?
+        </p>
+        <p>
+            <b>Q:</b> Who are you?
+            <br/>
+            <b>A:</b> At this point, you might realize this FAQ consists of questions asked by no one besides my subconscious. My name's Conor, and I love designing and implementing programming languages, varying from toy to semi-serious.
     </div>
 </body>
 </html>

@@ -18,17 +18,22 @@ code, textarea {
     font-family: "Roboto Mono", Consolas, monospace;
 }
 
+/* todo: better way to set height */
 textarea {
     width: 95%;
-    height: 19em;
+    height: 32em;
 }
 
 header {
     text-align: center;
 }
 
-h1, h2 {
+h1, h2, h3, p {
     margin: 0;
+}
+
+p + p {
+    margin-top: 8px;
 }
 
 button {
@@ -69,4 +74,19 @@ button:hover {
 
 #output {
     font-size: 12px;
+}
+
+#extra {
+    max-width: 900px;
+    line-height: 29px;
+    left: max(0px, calc(50% - 900px/2));
+    position: relative;
+}
+
+#extra img {
+    margin: 7px;
+}
+
+#commandList span {
+    font-size: 1.3em;
 }

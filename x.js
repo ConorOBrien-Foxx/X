@@ -1,4 +1,8 @@
 const XParser = {
+    error(...args) {
+        console.error(args);
+    },
+    
     TokenTypes: {
         TEXT: Symbol("XParser.TokenTypes.TEXT"),
         BREAK: Symbol("XParser.TokenTypes.BREAK"),
@@ -66,7 +70,7 @@ const XParser = {
                 return this.docx.bind(this);
             
             default:
-                console.error("Unimplemented parser type:", parserType);
+                this.error("Unimplemented parser type:", parserType);
                 return null;
         }
     },
@@ -110,8 +114,8 @@ const XParser = {
             let { font, text } = token;
             // this can only contain an x (upper or lowercase)
             if(BASE_FONT && font !== BASE_FONT && !onlyX.test(text)) {
-                console.error("Syntax Error: Unexpected font for non-variable `" + font + "'.");
-                console.error(text);
+                this.error("Syntax Error: Unexpected font for non-variable `" + font + "'.");
+                this.error(text);
                 return null;
             }
             // record the font at this index for later tokenization
@@ -168,7 +172,7 @@ const XParser = {
             if(type === "IdentifierName" && !RESERVED.includes(value)) {
                 // first, assert it is x
                 if(value !== "x" && value !== "X") {
-                    console.error("Syntax Error: Non-X identifier name `" + value + "`");
+                    this.error("Syntax Error: Non-X identifier name `" + value + "`");
                 }
                 
                 // get the font at this index
@@ -247,6 +251,9 @@ else if(typeof document !== "undefined") {
         const evaluate = document.getElementById("evaluate");
         const consoleOutput = document.getElementById("console-output");
         
+        XParser.error = (...args) => {
+            consoleOutput.value += args.join(" ") + "\n";
+        }
         consoleOutput.value = output.value = "";
         
         const handleFile = (file) => {
@@ -283,11 +290,20 @@ else if(typeof document !== "undefined") {
 
         compile.addEventListener("click", function () {
             let file = input.files[0];
+            if(!file) {
+                XParser.error("Error: no file provided");
+                return;
+            }
             handleFile(file);
         });
         
         let silenced = false;
         evaluate.addEventListener("click", function () {
+            if(!output.value) {
+                XParser.error("Error: no file provided");
+                return;
+            }
+            
             if(!silenced) {
                 if(!confirm("Warning! Do NOT evaluate code you do not trust! ONLY proceed if you are sure the code is safe! This method uses JavaScript `eval` with no protections whatsoever! You have been warned!")) {
                     alert("Evaluation aborted.");
@@ -299,5 +315,6 @@ else if(typeof document !== "undefined") {
             consoleOutput.value = "";
             eval(output.value);
         });
+        evaluate.disabled = true;
     });
 }
