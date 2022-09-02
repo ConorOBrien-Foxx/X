@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta property="og:title" content="X" />
+    <meta property="og:type" content="website" />
+    <title>X: An xkcd programming language</title>
+    <meta property="og:url" content="https://conorobrien-foxx.github.io/X" />
+    <meta property="og:image" content="https://conorobrien-foxx.github.io/X/FizzBuzz.png" />
+    <meta property="og:description" content="An xkcd programming language" />
+    <meta name="theme-color" content="#00FF33">
+
+    <!-- Include this to make the og:image larger -->
+    <meta name="twitter:card" content="summary_large_image">
+
     <script src="./x.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify.min.js"></script>
     <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -15,7 +27,6 @@
         XParser.JSZip = JSZip;
         XParser.DOMParser = DOMParser;
     </script>
-    <title>X: An xkcd programming language</title>
     <link rel="STYLESHEET" href="./x.css">
 </head>
 <body>
