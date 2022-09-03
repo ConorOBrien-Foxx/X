@@ -1,3 +1,8 @@
+# Repo specific
+rtf-parser/rtf-parser.min.js
+.tmp-browserify*
+
+##--- NODE JS ---##
 # Logs
 logs
 *.log

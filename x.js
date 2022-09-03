@@ -1,3 +1,13 @@
+// utility for quoting code nicely
+const disp = ([ str ]) => {
+    let lines = str.split("\n").filter(line => line.trim().length !== 0);
+    let indent = " ".repeat(4);
+    while(lines.every(line => line.startsWith(indent))) {
+        lines = lines.map(line => line.slice(indent.length));
+    }
+    return lines.join("\n");
+};
+
 const XParser = {
     error(...args) {
         console.error(args);
@@ -23,10 +33,6 @@ const XParser = {
     },
     
     async docx(data) {
-        const normalize = (text) =>
-            text.replace(/“|”/g, '"')
-                .replace(/…/g, "...");
-        
         let zip = await this.JSZip.loadAsync(data);
         let xml = await zip.file("word/document.xml").async("string");
         let doc = new this.DOMParser().parseFromString(xml, "text/xml");
@@ -49,7 +55,7 @@ const XParser = {
                     compiled.push({
                         type: this.TokenTypes.TEXT,
                         font: rFont,
-                        text: normalize(text.textContent)
+                        text: text.textContent
                     });
                 }
             }
@@ -61,13 +67,58 @@ const XParser = {
         return compiled;
     },
     
+    getRTFDoc(input) {
+        let method;
+        if(typeof input.pipe !== "undefined") {
+            method = "stream";
+        }
+        else {
+            method = "string";
+        }
+        return new Promise((resolve, reject) => {
+            this.parseRTF[method](input, (err, doc) => {
+                if(err) {
+                    return reject(err);
+                }
+                resolve(doc);
+            });
+        });
+    },
+    
+    async rtf(data) {
+        let compiled = [];
+        let doc = await this.getRTFDoc(data);
+        let paras = doc.content;
+        
+        let baseFont = doc.style.font?.name;
+        for(let para of paras) {
+            let innerBaseFont = para.style.font?.name ?? baseFont;
+            for(let span of para.content) {
+                compiled.push({
+                    type: this.TokenTypes.TEXT,
+                    font: span.style.font?.name ?? innerBaseFont,
+                    text: span.value
+                });
+            }
+            compiled.push({
+                type: this.TokenTypes.BREAK
+            });
+        }
+        
+        return compiled;
+    },
+    
     Parsers: {
         DOCX: Symbol("XParser.Parsers.DOCX"),
+        RTF: Symbol("XParser.Parsers.RTF"),
     },
     getParser(parserType) {
         switch(parserType) {
             case this.Parsers.DOCX:
                 return this.docx.bind(this);
+            
+            case this.Parsers.RTF:
+                return this.rtf.bind(this);
             
             default:
                 this.error("Unimplemented parser type:", parserType);
@@ -75,34 +126,85 @@ const XParser = {
         }
     },
     
+    ExtensionToParser: undefined,
+    extensionMatch: /\.([^.]+)$/,
+    getParserFromExtension(fileName) {
+        this.ExtensionToParser ??= {
+            "docx": this.Parsers.DOCX,
+            "rtf": this.Parsers.RTF,
+        };
+        
+        let extension = fileName.match(this.extensionMatch)?.at(-1)?.toLowerCase();
+        let parser = this.ExtensionToParser[extension]
+        
+        if(!parser) {
+            XParser.error("Error: Unrecognized extension", extension);
+            return;
+        }
+        
+        return parser;
+    },
+    
+    normalize: (text) =>
+        text.replace(/“|”/g, '"')
+            .replace(/…/g, "..."),
+    
     async parse(data, parserType) {
         parserType ??= this.Parsers.DOCX;
         const parser = await this.getParser(parserType);
-        return parser(data);
+        let tokens = await parser(data);
+        return tokens.map(token =>
+            token.text
+                ? { ...token, text: this.normalize(token.text) }
+                : token
+        );
     },
     
-    async transpile(data, browser=false) {
+    serializeFont(name, cache) {
+        if(cache[name]) {
+            return cache[name];
+        }
+        let serialized = name
+            .replace(/[^A-Za-z0-9]+/g, "_")
+            .replace(/^_+|_+$/g, "");
+        let suffix = "";
+        let entries = Object.entries(cache);
+        while(entries.find(([key, value]) => value == serialized + suffix)) {
+            // cursed, but elegant
+            suffix++;
+        }
+        serialized += suffix;
+        cache[name] = serialized;
+        return serialized;
+    },
+    
+    onlyX: /^\s*x?\s*$/i,
+    
+    VariableHeaders: {
+        "x_Impact": disp`
+            // print
+            const x_Impact = (...args) => console.log(...args);
+        `,
+        "x_Arial": disp`
+            const x_Arial = Set;
+        `,
+        "x_Calibri": disp`
+            const x_Calibri = (arr, ...args) => arr.push(...args);
+        `,
+        "x_Times_New_Roman": disp`
+            const x_Times_New_Roman = (arr, by="") => arr.join(by);
+        `,
+    },
+    
+    async transpile(data, options={}) {
+        options.parserType ??= undefined;
+        options.baseFont ??= null;
+        // try, "Comic Sans MS"
+        
+        const BASE_FONT = options.baseFont;
         const fontCache = {};
-        const serializeFont = (font) => {
-            if(fontCache[font]) {
-                return fontCache[font];
-            }
-            let serialized = font
-                .replace(/[^A-Za-z0-9]+/g, "_")
-                .replace(/^_+|_+$/g, "");
-            let suffix = "";
-            let entries = Object.entries(fontCache);
-            while(entries.find(([key, value]) => value == serialized + suffix)) {
-                // cursed, but elegant
-                suffix++;
-            }
-            serialized += suffix;
-            fontCache[font] = serialized;
-            return serialized;
-        };
-        const BASE_FONT = null;// "Comic Sans MS";
-        const onlyX = /^\s*x?\s*$/i;
-        let tokens = await XParser.parse(data);
+        
+        let tokens = await XParser.parse(data, options.parserType);
         let baseString = "";
         let fontIndices = [];
         for(let token of tokens) {
@@ -112,11 +214,13 @@ const XParser = {
             }
             
             let { font, text } = token;
-            // this can only contain an x (upper or lowercase)
-            if(BASE_FONT && font !== BASE_FONT && !onlyX.test(text)) {
-                this.error("Syntax Error: Unexpected font for non-variable `" + font + "'.");
-                this.error(text);
-                return null;
+            if(BASE_FONT) {
+                // this text can only contain an x (upper or lowercase)
+                if(font !== BASE_FONT && !this.onlyX.test(text)) {
+                    this.error("Syntax Error: Unexpected font for non-variable `" + font + "'.");
+                    this.error(text);
+                    return null;
+                }
             }
             // record the font at this index for later tokenization
             let index = baseString.length;
@@ -125,34 +229,11 @@ const XParser = {
             }
             baseString += text;
         }
+        
         // transform and transpile
         let headers = new Set();
         let transpiled = "";
         let index = 0;
-        
-        const HEADERS = {
-            "x_Impact": disp`
-                // print
-                const x_Impact = (...args) => console.log(...args);
-            `,
-            "x_Arial": disp`
-                const x_Arial = Set;
-            `,
-            "x_Calibri": disp`
-                const x_Calibri = (arr, ...args) => arr.push(...args);
-            `,
-            "x_Times_New_Roman": disp`
-                const x_Times_New_Roman = (arr, by="") => arr.join(by);
-            `,
-        };
-        if(browser) {
-            HEADERS.x_Impact = disp`
-                // print
-                const x_Impact = (...args) => {
-                    document.getElementById("console-output").value += args.join(" ") + "\\n";
-                };
-            `;
-        }
         
         // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#keywords
         const RESERVED = `
@@ -170,7 +251,6 @@ const XParser = {
         `.trim().split(/\s+/);
         for(let { type, value } of this.jsTokens(baseString)) {
             if(type === "IdentifierName" && !RESERVED.includes(value)) {
-                // first, assert it is x
                 if(value !== "x" && value !== "X") {
                     this.error("Syntax Error: Non-X identifier name `" + value + "`");
                 }
@@ -184,15 +264,15 @@ const XParser = {
                     font = inds.font;
                 }
                 
-                // "mangle" variable name
-                let mangled = `x_${serializeFont(font)}`;
+                let mangled = `x_${this.serializeFont(font, fontCache)}`;
                 
-                // add corresponding library header, if necessary
-                if(HEADERS[mangled]) {
-                    headers.add(HEADERS[mangled]);
+                if(this.VariableHeaders[mangled]) {
+                    headers.add(this.VariableHeaders[mangled]);
+                }
+                else if(mangled === "x_Papyrus") {
+                    mangled = "this";
                 }
                 
-                // add to transpiled
                 transpiled += mangled;
             }
             else {
@@ -213,15 +293,6 @@ const XParser = {
     }
 };
 
-const disp = ([ str ]) => {
-    let lines = str.split("\n").filter(line => line.trim().length !== 0);
-    let indent = " ".repeat(4);
-    while(lines.every(line => line.startsWith(indent))) {
-        lines = lines.map(line => line.slice(indent.length));
-    }
-    return lines.join("\n");
-};
-
 if(typeof require !== "undefined") {
     // node js execution
     (async function main() {
@@ -231,12 +302,20 @@ if(typeof require !== "undefined") {
         XParser.beautify = require("js-beautify");
         const { DOMParser } = require("xmldom");
         XParser.DOMParser = DOMParser;
+        XParser.parseRTF = require("rtf-parser");
         // NOTE: xmldom, as of writing, has a moderate vulnerability.
         // but, you shouldn't be running code you don't know anyhow. so.
         // it's probably fine.
         
-        let data = await fs.readFile(process.argv[2]);
-        let total = await XParser.transpile(data);
+        let fileName = process.argv[2]
+        let data = await fs.readFile(fileName);
+        let parser = XParser.getParserFromExtension(fileName);
+        if(!parser) {
+            return;
+        }
+        let total = await XParser.transpile(data, {
+            parserType: parser
+        });
         console.log(total);
         eval(total);
     })();
@@ -253,28 +332,40 @@ else if(typeof document !== "undefined") {
         
         XParser.error = (...args) => {
             consoleOutput.value += args.join(" ") + "\n";
-        }
+        };
+        XParser.VariableHeaders.x_Impact = disp`
+            // print
+            const x_Impact = (...args) => {
+                document.getElementById("console-output").value += args.join(" ") + "\\n";
+            };
+        `;
+        
         consoleOutput.value = output.value = "";
         
         const handleFile = (file) => {
+            let parser = XParser.getParserFromExtension(file.name);
+            if(!parser) {
+                return;
+            }
             const reader = new FileReader();
             reader.onload = async (e) => {
                 let data = e.target.result;
-                let total = await XParser.transpile(data, true);
+                let total = await XParser.transpile(data, {
+                    parserType: parser,
+                });
                 output.value = total;
                 evaluate.disabled = false;
             };
             reader.readAsBinaryString(file);
         };
         
-        dropbox.addEventListener("dragenter", function (e) {
+        const dragEvent = function (e) {
             e.stopPropagation();
             e.preventDefault();
-        }, false);
-        dropbox.addEventListener("dragover",  function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-        }, false);
+        };
+        
+        dropbox.addEventListener("dragenter", dragEvent, false);
+        dropbox.addEventListener("dragover", dragEvent, false);
         dropbox.addEventListener("drop", function (e) {
             e.stopPropagation();
             e.preventDefault();
