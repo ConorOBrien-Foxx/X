@@ -67,6 +67,7 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     border: 6px dotted;
     border-radius: 15px;
     cursor: pointer;
@@ -89,4 +90,8 @@ button:hover {
 
 #commandList span {
     font-size: 1.3em;
+}
+
+#input {
+    display: none;
 }

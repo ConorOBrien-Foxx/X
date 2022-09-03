@@ -41,7 +41,12 @@
         <div id="upload">
         <div id="dropbox">
             <div>
-                <label for="input">Upload a Word (.docx) file! </label><input id="input" type="file">
+                <!-- <label for="input">Upload a Word (.docx) or Rich Text File (.rtf) file! </label><input id="input" type="file"> -->
+                Upload a Word (.docx) or Rich Text File (.rtf) file!
+            </div>
+            <div>
+                <span id="input-proxy">File: No files selected.</span>
+                <input id="input" type="file">
             </div>
         </div>
         <div>
@@ -65,13 +70,14 @@
         <p id="commands">
             <b>Q:</b> What are the commands I can use?
             <br/>
-            <b>A:</b> In addition to the JavaScript keywords, there are the following (which you can copy paste into your X IDE!):
+            <b>A:</b> In addition to the JavaScript keywords, there are the following, which you can copy paste into your X IDE! They are also case-insensitive.
         </p>
         <ul id="commandList">
             <li><span style="font-family: Impact">X</span> (Impact) - Print</li>
             <li><span style="font-family: Arial">X</span> (Arial) - the Set class</li>
             <li><span style="font-family: Calibri">X</span> (Calibri) - Pushes the second argument to the first</li>
             <li><span style="font-family: 'Times New Roman'">X</span> (Times New Roman) - Joins the first argument by the optional second argument</li>
+            <li><span style="font-family: Papyrus">X</span> (Papyrus) - JavaScript's <code>this</code></li>
         </ul>
         <p>
             <b>Q:</b> What is this?
@@ -81,7 +87,7 @@
         <p>
             <b>Q:</b> How&hellip; how do I use this?
             <br/>
-            <b>A:</b> Simply upload a word document! I haven't tested it extensively, but any word document should work. So long as the only non-keyword identifiers are named <code>x</code>, the fonts should be enough to go off of.
+            <b>A:</b> Simply upload a word document or a rich text file document! I haven't tested it extensively, but any word document should work. So long as the only non-keyword identifiers are named <code>x</code>, the fonts should be enough to go off of.
             <div>
             <figure>
                 <img src="./FizzBuzz.png" width="600">
@@ -101,7 +107,7 @@
         <p>
             <b>Q:</b> Who are you?
             <br/>
-            <b>A:</b> At this point, you might realize this FAQ consists of questions asked by no one besides my subconscious. My name's Conor, and I love designing and implementing programming languages, varying from toy to semi-serious.
+            <b>A:</b> At this point, the reader might realize this FAQ consists of questions asked by no one besides my subconscious. My name's Conor, and I love designing and implementing programming languages, varying from toy to semi-serious. My most notorious creation is <a href="https://github.com/ConorOBrien-Foxx/Pyramid-Scheme">Pyramid Scheme</a> (not for the reason you might think). My most &ldquo;serious&rdquo; creation is <a href="https://github.com/ConorOBrien-Foxx/Attache">Attache</a>, although that language has a slew of flaws, to be sure. I've recently been working on a <a href="https://en.wikipedia.org/wiki/Code_golf">golfing language</a> derivative of <a href="https://www.jsoftware.com">J</a>, called <a href="https://github.com/ConorOBrien-Foxx/Myby">Myby</a>. Feel free to check out my <a href="https://github.com/ConorOBrien-Foxx">GitHub</a>, <a href="https://esolangs.org/wiki/User:Conor_O%27Brien">esolangs page</a>, or <a href="https://twitter.com/za_durgon">Twitter</a>.
     </div>
 </body>
 </html>

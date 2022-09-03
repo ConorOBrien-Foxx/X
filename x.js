@@ -329,6 +329,19 @@ else if(typeof document !== "undefined") {
         const dropbox = document.getElementById("dropbox");
         const evaluate = document.getElementById("evaluate");
         const consoleOutput = document.getElementById("console-output");
+        const inputProxy = document.getElementById("input-proxy");
+        
+        const updateProxy = () => {
+            inputProxy.textContent = "File: " + (
+                input.files.length === 0
+                    ? "No files selected."
+                    : input.files[0].name
+            );
+        };
+        
+        updateProxy();
+        
+        input.addEventListener("change", updateProxy);
         
         XParser.error = (...args) => {
             consoleOutput.value += args.join(" ") + "\n";
