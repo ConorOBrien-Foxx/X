@@ -53,9 +53,22 @@ button:hover {
     display: flex;
 }
 
-@media (width <= 900px) {
+#input {
+    display: none;
+}
+
+@media (max-width: 1000px) {
     #content {
         flex-direction: column;
+    }
+    img {
+        width: 90%;
+    }
+    #input {
+        display: block;
+    }
+    #input-proxy {
+        display: none;
     }
 }
 
@@ -77,6 +90,7 @@ button:hover {
     border: 6px dotted;
     border-radius: 15px;
     cursor: pointer;
+    text-align: center;
 }
 
 #output {
@@ -96,8 +110,4 @@ button:hover {
 
 #commandList span {
     font-size: 1.3em;
-}
-
-#input {
-    display: none;
 }
