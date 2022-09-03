@@ -28,7 +28,7 @@ header {
     text-align: center;
 }
 
-h1, h2, h3, p {
+h1, h2, h3, h4, p {
     margin: 0;
 }
 
@@ -51,6 +51,12 @@ button:hover {
 
 #content {
     display: flex;
+}
+
+@media (width <= 900px) {
+    #content {
+        flex-direction: column;
+    }
 }
 
 #content > * {
